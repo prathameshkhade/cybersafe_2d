@@ -1,0 +1,102 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'           
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Decode Keystore          
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/keystore.jks
+
+      - name: Create key.properties
+        run: |
+          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+
+      - name: Build APKs (split per ABI)
+        run: flutter build apk --release --split-per-abi
+
+      - name: Rename APKs              
+        run: |
+          VERSION=$(grep "version:" pubspec.yaml | awk '{print $2}')
+          cd build/app/outputs/flutter-apk
+          mv app-armeabi-v7a-release.apk "CyberSafe2D-armeabi-v7a-release.apk"
+          mv app-arm64-v8a-release.apk "CyberSafe2D-arm64-v8a-release.apk"
+          mv app-x86_64-release.apk "CyberSafe2D -x86_64-release.apk"
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4  
+        with:
+          name: android-builds
+          path: build/app/outputs/flutter-apk/*.apk
+
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'           
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build iOS Release
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v4  
+        with:
+          name: ios-build
+          path: build/ios/iphoneos/
+
+  release:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Android Builds
+        uses: actions/download-artifact@v4 
+        with:
+          name: android-builds
+
+      - name: Download iOS Build
+        uses: actions/download-artifact@v4 
+        with:
+          name: ios-build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: CyberSafe 2D - ${{ github.run_number }}
+          files: |
+            *.apk
+            ios-build/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
