@@ -16,7 +16,7 @@ plugins {
 android {
     namespace = "dev.prathameshkhade.cybersafe_2d"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "29.0.13599879"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
