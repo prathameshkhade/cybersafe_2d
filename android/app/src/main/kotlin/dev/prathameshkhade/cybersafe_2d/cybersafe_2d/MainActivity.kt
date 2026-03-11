@@ -1,4 +1,4 @@
-package dev.prathameshkhade.cybersafe_2d.cybersafe_2d
+package dev.prathameshkhade.cybersafe_2d
 
 import io.flutter.embedding.android.FlutterActivity
 
