@@ -6,10 +6,18 @@ import '../../core/models/mission.dart';
 import '../results/mission_results_page.dart';
 import 'missions/k001_hero_message_sort/hero_message_sort_game.dart';
 import 'missions/k002_password_fortress/password_fortress_game.dart';
+import 'missions/k003_privacy_shield/privacy_shield_game.dart';
+import 'missions/k004_danger_detector/danger_detector_game.dart';
 import 'missions/t001_dm_threat_buster/dm_threat_buster_game.dart';
 import 'missions/t002_fake_friend_request/fake_friend_request_game.dart';
+import 'missions/t003_phishing_spotter/phishing_spotter_game.dart';
+import 'missions/t004_two_factor_hero/two_factor_hero_game.dart';
 import 'missions/n001_social_engineering_escape/social_engineering_escape_game.dart';
 import 'missions/n002_deep_link_inspector/deep_link_inspector_game.dart';
+import 'missions/n003_osint_scanner/osint_scanner_game.dart';
+import 'missions/n004_incident_response/incident_response_game.dart';
+
+
 
 class GameScreen extends StatelessWidget {
   final Mission mission;
@@ -45,6 +53,16 @@ class GameScreen extends StatelessWidget {
           mission: mission,
           onComplete: (score) => _onMissionComplete(context, score),
         );
+      case 'k003':
+        return PrivacyShieldGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );
+      case 'k004':
+        return DangerDetectorGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );
       case 't001':
         return DmThreatBusterGame(
           mission: mission,
@@ -55,6 +73,16 @@ class GameScreen extends StatelessWidget {
           mission: mission,
           onComplete: (score) => _onMissionComplete(context, score),
         );
+      case 't003':
+        return PhishingSpotterGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );
+      case 't004':
+        return TwoFactorHeroGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );  
       case 'n001':
         return SocialEngineeringEscapeGame(
           mission: mission,
@@ -62,6 +90,16 @@ class GameScreen extends StatelessWidget {
         );
       case 'n002':
         return DeepLinkInspectorGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );
+      case 'n003':
+        return OsintScannerGame(
+          mission: mission,
+          onComplete: (score) => _onMissionComplete(context, score),
+        );
+      case 'n004':
+        return IncidentResponseGame(
           mission: mission,
           onComplete: (score) => _onMissionComplete(context, score),
         );

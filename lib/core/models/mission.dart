@@ -48,6 +48,26 @@ class MissionRepository {
       emoji: '🏰',
     ),
     Mission(
+      id: 'k003',
+      title: 'Privacy Shield',
+      description:
+          'Decide what info is safe to share online and what must stay private. Protect your shield!',
+      flameMechanic: 'Swipe cards — Private vs Safe to Share',
+      learningGoal: 'Understand what personal info to keep private',
+      ageTier: AgeTier.kids7_10,
+      emoji: '🔒',
+    ),
+    Mission(
+      id: 'k004',
+      title: 'Danger Detector',
+      description:
+          'Rate each online situation using the traffic light. Green, Yellow or Red — how dangerous is it?',
+      flameMechanic: 'Traffic light tap — Green / Yellow / Red',
+      learningGoal: 'Recognise online danger levels',
+      ageTier: AgeTier.kids7_10,
+      emoji: '🚨',
+    ),
+    Mission(
       id: 't001',
       title: 'DM Threat Buster',
       description:
@@ -68,6 +88,26 @@ class MissionRepository {
       emoji: '🎭',
     ),
     Mission(
+      id: 't003',
+      title: 'Phishing Email Spotter',
+      description:
+          'Read emails carefully, tap the red flags you spot, then decide: Phishing or Legit?',
+      flameMechanic: 'Tap red flags + Phishing/Legit verdict',
+      learningGoal: 'Identify phishing emails by spotting red flags',
+      ageTier: AgeTier.tweens11_14,
+      emoji: '📧',
+    ),
+    Mission(
+      id: 't004',
+      title: 'Two Factor Hero',
+      description:
+          'Choose the safest login method for each scenario. Master 2FA and password security!',
+      flameMechanic: 'Multiple choice — pick the safest option',
+      learningGoal: 'Understand 2FA methods and password strength',
+      ageTier: AgeTier.tweens11_14,
+      emoji: '🔐',
+    ),
+    Mission(
       id: 'n001',
       title: 'Social Engineering Escape',
       description:
@@ -86,6 +126,26 @@ class MissionRepository {
       learningGoal: 'Detect URL spoofing',
       ageTier: AgeTier.teens15_18,
       emoji: '🔍',
+    ),
+    Mission(
+      id: 'n003',
+      title: 'OSINT Exposure Scanner',
+      description:
+          'Analyse real social media profiles. Tap dangerous info pieces and rate the exposure risk before it\'s too late.',
+      flameMechanic: 'Tap red flags + Low/High risk verdict',
+      learningGoal: 'Understand how public info enables location triangulation',
+      ageTier: AgeTier.teens15_18,
+      emoji: '🕵️',
+      ),
+    Mission(
+      id: 'n004',
+      title: 'Incident Response',
+      description:
+          'Your account is compromised. Ransomware just hit. A breach notification arrived. React fast — in the right order.',
+      flameMechanic: 'Tap-to-order timed response steps',
+      learningGoal: 'Execute correct incident response steps under pressure',
+      ageTier: AgeTier.teens15_18,
+      emoji: '🛡️',
     ),
   ];
 
