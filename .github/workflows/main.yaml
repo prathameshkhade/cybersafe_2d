@@ -75,16 +75,21 @@ jobs:
       - name: Build iOS Release
         run: flutter build ios --release --no-codesign
 
+      - name: Zip iOS Build
+        run: zip -r CyberSafe2D-ios.zip build/ios/iphoneos/
+
       - name: Upload iOS Build
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: build/ios/iphoneos/
+          path: CyberSafe2D-ios.zip
 
   release:
     needs: [build-android, build-ios]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
 
@@ -107,6 +112,6 @@ jobs:
           name: CyberSafe 2D - v${{ github.run_number }}
           files: |
             artifacts/android/*.apk
-            artifacts/ios/**
+            artifacts/ios/CyberSafe2D-ios.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
