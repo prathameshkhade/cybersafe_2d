@@ -37,19 +37,17 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
-            storePassword = keystoreProperties["storePassword"] as String
+            // Safe null-checks: falls back to empty string if secret is missing
+            keyAlias     = keystoreProperties["keyAlias"]?.toString()     ?: ""
+            keyPassword  = keystoreProperties["keyPassword"]?.toString()  ?: ""
+            storeFile    = keystoreProperties["storeFile"]?.toString()?.let { file(it) }
+            storePassword = keystoreProperties["storePassword"]?.toString() ?: ""
         }
     }
 
     buildTypes {
         getByName("release") {
-            // Replace the debug signing config with release
             signingConfig = signingConfigs.getByName("release")
-            
-            // Optional: add optimization for release
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
