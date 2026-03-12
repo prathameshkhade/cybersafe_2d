@@ -164,7 +164,7 @@ const _scenarios = [
         color: Color(0xFFFFD166),
       ),
       _LoginMethod(
-        name: 'T!ger$Jump99#Blue',
+        name: r'T!ger$Jump99#Blue',
         icon: '🔑',
         securityRank: 1,
         explanation: 'Random mix of uppercase, symbols and numbers with no personal info — excellent password!',
@@ -179,7 +179,7 @@ const _scenarios = [
       ),
     ],
     correctRank: 1,
-    verdict: 'T!ger\$Jump99#Blue wins — random mixed characters with no personal info is the gold standard!',
+    verdict: r'T!ger$Jump99#Blue' ' wins — random mixed characters with no personal info is the gold standard!',
   ),
   _Scenario(
     situation: 'You\'re logging into your bank app on your phone. Which is the safest option?',
