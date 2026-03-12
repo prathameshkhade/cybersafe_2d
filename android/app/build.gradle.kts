@@ -37,20 +37,22 @@ android {
 
     signingConfigs {
         create("release") {
-            // Safe null-checks: falls back to empty string if secret is missing
-            keyAlias     = keystoreProperties["keyAlias"]?.toString()     ?: ""
-            keyPassword  = keystoreProperties["keyPassword"]?.toString()  ?: ""
-            storeFile    = keystoreProperties["storeFile"]?.toString()?.let { file(it) }
+            keyAlias      = keystoreProperties["keyAlias"]?.toString()      ?: ""
+            keyPassword   = keystoreProperties["keyPassword"]?.toString()   ?: ""
+            storeFile     = keystoreProperties["storeFile"]?.toString()?.let { rootProject.file(it) }
             storePassword = keystoreProperties["storePassword"]?.toString() ?: ""
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
+            signingConfig     = signingConfigs.getByName("release")
+            isMinifyEnabled   = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
