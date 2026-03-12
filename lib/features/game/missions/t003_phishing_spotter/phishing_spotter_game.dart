@@ -237,7 +237,7 @@ class _PhishingSpotterGameState extends State<PhishingSpotterGame>
       answeredQuestions: _currentIndex,
       child: Column(
         children: [
-          Padding(\
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Column(
               children: [
