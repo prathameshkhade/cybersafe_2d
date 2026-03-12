@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/scheduler.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../../core/models/mission.dart';
@@ -59,14 +60,19 @@ class PasswordFortressGame extends StatefulWidget {
   State<PasswordFortressGame> createState() => _PasswordFortressGameState();
 }
 
-class _PasswordFortressGameState extends State<PasswordFortressGame> {
+class _PasswordFortressGameState extends State<PasswordFortressGame>
+    with SingleTickerProviderStateMixin {
   final _random = Random();
   final List<_FallingItem> _items = [];
   int _score = 0;
   int _lives = 3;
   int _timeLeft = 60;
-  Timer? _gameTimer;
+
+  Timer? _countdownTimer;
   Timer? _spawnTimer;
+  Ticker? _ticker;
+  Duration _lastTickTime = Duration.zero;
+
   bool _gameOver = false;
   String? _feedback;
   bool? _feedbackGood;
@@ -79,22 +85,49 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
 
   @override
   void dispose() {
-    _gameTimer?.cancel();
+    _countdownTimer?.cancel();
     _spawnTimer?.cancel();
+    _ticker?.dispose();
     super.dispose();
   }
 
   void _startGame() {
-    _gameTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) return;
+    // Countdown: 1 tick per second
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted || _gameOver) return;
       setState(() {
         _timeLeft--;
-        // move items down
+        if (_timeLeft <= 0) _endGame();
+      });
+    });
+
+    // Spawn a bubble every 1.4 seconds
+    _spawnTimer = Timer.periodic(const Duration(milliseconds: 1400), (_) {
+      if (!mounted || _gameOver) return;
+      _spawnItem();
+    });
+
+    // Smooth 60fps movement ticker
+    _ticker = createTicker((elapsed) {
+      if (!mounted || _gameOver) return;
+
+      // deltaTime in seconds between frames (~0.016s at 60fps)
+      final double deltaTime = _lastTickTime == Duration.zero
+          ? 0.0
+          : (elapsed - _lastTickTime).inMicroseconds / 1000000.0;
+      _lastTickTime = elapsed;
+
+      if (deltaTime <= 0) return;
+
+      setState(() {
         for (final item in _items) {
-          item.y += item.speed;
+          // speed = screen-height fraction per second
+          // e.g. 0.13 * 0.016 = 0.002 per frame = smooth glide
+          item.y += item.speed * deltaTime;
         }
+
         _items.removeWhere((item) {
-          if (item.y > 1.0) {
+          if (item.y > 1.1) {
             if (item.isGood) {
               _lives--;
               if (_lives <= 0) _endGame();
@@ -103,13 +136,10 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
           }
           return false;
         });
-        if (_timeLeft <= 0) _endGame();
       });
     });
-    _spawnTimer = Timer.periodic(const Duration(milliseconds: 1200), (_) {
-      if (!mounted || _gameOver) return;
-      _spawnItem();
-    });
+
+    _ticker!.start();
   }
 
   void _spawnItem() {
@@ -123,7 +153,8 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
         reason: picked.$2,
         x: 0.1 + _random.nextDouble() * 0.8,
         y: -0.05,
-        speed: 0.015 + _random.nextDouble() * 0.01,
+        // 0.12 to 0.18 = takes 5.5 to 8 seconds to fall — smooth bubble feel
+        speed: 0.12 + _random.nextDouble() * 0.06,
         id: '${DateTime.now().millisecondsSinceEpoch}_${_random.nextInt(999)}',
       ));
     });
@@ -148,8 +179,10 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
   }
 
   void _endGame() {
-    _gameTimer?.cancel();
+    if (_gameOver) return;
+    _countdownTimer?.cancel();
     _spawnTimer?.cancel();
+    _ticker?.stop();
     setState(() => _gameOver = true);
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
@@ -173,7 +206,7 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
       child: LayoutBuilder(builder: (context, constraints) {
         return Stack(
           children: [
-            // Background fortress
+            // Fortress bar at bottom
             Positioned(
               bottom: 0,
               left: 0,
@@ -200,6 +233,7 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
                 ),
               ),
             ),
+
             // Lives
             Positioned(
               top: 8,
@@ -209,7 +243,8 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
                     style: const TextStyle(fontSize: 20));
               })),
             ),
-            // Feedback
+
+            // Feedback banner
             if (_feedback != null)
               Positioned(
                 top: 40,
@@ -235,7 +270,8 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
                   ),
                 ),
               ),
-            // Falling items
+
+            // Falling bubbles
             ..._items.map((item) {
               final x = item.x * constraints.maxWidth - 30;
               final y = item.y * constraints.maxHeight;
@@ -250,6 +286,8 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                         colors: item.isGood
                             ? [
                                 const Color(0xFF06D6A0),
@@ -285,6 +323,7 @@ class _PasswordFortressGameState extends State<PasswordFortressGame> {
                 ),
               );
             }),
+
             // Instructions
             Positioned(
               bottom: 90,
