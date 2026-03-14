@@ -194,15 +194,25 @@ class _FakeFriendRequestGameState extends State<FakeFriendRequestGame> {
             Expanded(
               child: GestureDetector(
                 onTap: _flip,
-                child: AnimatedSwitcher(
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0, end: _flipped ? 1 : 0),
                   duration: const Duration(milliseconds: 400),
-                  transitionBuilder: (child, anim) => RotationYTransition(
-                    turns: anim,
-                    child: child,
-                  ),
-                  child: _flipped
-                      ? _buildBackCard(profile, theme)
-                      : _buildFrontCard(profile, theme),
+                  curve: Curves.easeInOut,
+                  builder: (context, value, _) {
+                    // First half (0→0.5): show front rotating out
+                    // Second half (0.5→1): show back counter-rotated so text reads correctly
+                    final isFrontVisible = value < 0.5;
+                    final angle = isFrontVisible
+                        ? value * 3.1416         // 0 → π/2
+                        : (value - 1) * 3.1416;  // -π/2 → 0 (back face reads correctly)
+                    return Transform(
+                      transform: Matrix4.rotationY(angle),
+                      alignment: Alignment.center,
+                      child: isFrontVisible
+                          ? _buildFrontCard(profile, theme)
+                          : _buildBackCard(profile, theme),
+                    );
+                  },
                 ),
               ),
             ),
@@ -416,23 +426,6 @@ class _FakeFriendRequestGameState extends State<FakeFriendRequestGame> {
         ),
         Text(label, style: TextStyle(color: theme.subtextColor, fontSize: 12)),
       ],
-    );
-  }
-}
-
-class RotationYTransition extends AnimatedWidget {
-  final Widget child;
-  const RotationYTransition(
-      {super.key, required Animation<double> turns, required this.child})
-      : super(listenable: turns);
-
-  @override
-  Widget build(BuildContext context) {
-    final animation = listenable as Animation<double>;
-    return Transform(
-      transform: Matrix4.rotationY(animation.value * 3.14),
-      alignment: Alignment.center,
-      child: child,
     );
   }
 }
